@@ -1,0 +1,53 @@
+<%- include('header.ejs') %>
+    <main class="mw edit">
+        <h2>THE BLOG </h2> 
+        <h3>Blog Write</h3>
+        <form action="/edit/<%= posting.num %>" method="post" class="writeCon" enctype="multipart/form-data">
+            <input type="hidden" name="_method" value="put">    
+            <input type="hidden" name="num" value="<%= posting.num %>">
+            <input type="hidden" name="createDate" class="createDate">    
+            <input type="hidden" name="oldImagPath" value="<%= posting.postImgPath %>">          
+            <label for="title">제목</label> 
+            <input type="text" id="title" name="title" placeholder="제목 입력">
+            <label for="postImg">이미지 첨부</label> 
+            <input type="file" id="postImg" name="postImg" >  
+            <span class="fileName">첨부된 이미지: 
+                <% if(!posting.postImgPath) { %>
+                    없음
+                <% } else { %>
+                <img src="<%= posting.postImgPath %>" style="max-width:10rem;" alt="img">
+                <% } %>
+            </span>   
+            <textarea name="desc" id="desc" placeholder="내용 입력"></textarea>
+            <div class="btnWrap">
+                <a href="/detail/<%= posting.num %>" class="btn btnDes lg">취소</a> 
+                <button type="submit" class="btn btnPrimary lg">수정완료</button>
+            </div>
+        </form>
+    </main>
+    <script>       
+        const createDate = document.querySelector('.createDate');
+        const title = document.querySelector('#title');    
+        const desc = document.querySelector('#desc');   
+        const today = new Date().toISOString().slice(0, 10);
+        title.value = `<%= posting.title %>`;      
+        desc.value = `<%= posting.desc %>`;
+        createDate.value = today; 
+
+        const postImg = document.querySelector('#postImg');
+        const fileNameSpan = document.querySelector('.fileName');
+        const defaultImgPath = '<%= posting.postImgPath %>';
+
+        postImg.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.maxWidth = '10rem';
+            img.alt = 'img';
+            fileNameSpan.innerHTML = '첨부된 이미지: ';
+            fileNameSpan.appendChild(img);
+        } 
+    }); 
+    </script>
+<%- include('footer.ejs') %>

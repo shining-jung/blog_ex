@@ -1,0 +1,26 @@
+<%- include('header.ejs') %>
+    <main class="mw personal">
+        <h2>THE BLOG </h2>  
+        <h3><%= postUser %>님 포스팅 정보</h3>  
+        <ul>
+            <% if(posting.length == 0) { %>
+                <li>리스트가 없습니다.</li>
+            <% } else { %>
+                <% posting.map(post => { %>
+                    <li>
+                        <div class="thum">
+                            <% if(!post.postImgPath) { %>
+                                <img src="/noimg.png" alt="no_img"> 
+                            <% } else { %>
+                                <img src="<%= post.postImgPath %>" alt="<%= post.title %>"> 
+                            <% } %>
+                        </div>
+                    </li>
+                <% }) %>
+            <% } %>
+            
+
+            
+        </ul>
+    </main>   
+<%- include('footer.ejs') %>

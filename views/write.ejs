@@ -1,0 +1,40 @@
+<%- include('header.ejs') %>
+    <main class="mw write">
+        <h2>THE BLOG </h2> 
+        <h3>Blog Write</h3>
+        <form action="/write" method="post" class="writeCon" enctype="multipart/form-data">
+            <input type="hidden" name="user" value="<%= userCk.userName %>">
+            <input type="hidden" name="createDate">  
+                <label for="title">제목</label> 
+                <input type="text" id="title" name="title" placeholder="제목 입력">
+                <label for="postImg">이미지 첨부</label> 
+                <input type="file" id="postImg" name="postImg">     
+                <textarea name="desc" id="desc" placeholder="내용 입력"></textarea>
+                <p class="alertTxt"></p>
+                <div class="btnWrap">
+                    <button type="submit" class="btn lg btnPrimary">작성</button>
+                </div>
+        </form>
+    </main>
+    <script>
+        const createDate = document.querySelector('input[name="createDate"]');
+        const alertTxt = document.querySelector('.alertTxt');       
+        const today = new Date().toISOString().slice(0, 10);
+        createDate.value = today
+        const submitBtn = document.querySelector('.writeCon button[type="submit"]');
+        submitBtn.addEventListener('click', (e)=>{
+            const title = document.querySelector('#title');
+            const desc = document.querySelector('#desc');
+            e.preventDefault();
+            if (title.value == '' ) {
+                alertTxt.innerHTML = '제목을 입력해주세요.'
+                return;
+            } 
+            if (desc.value == '' ) {
+                alertTxt.innerHTML = '내용을 입력해주세요.'
+                return;
+            }
+            e.target.closest('form').submit();
+        });
+    </script>
+<%- include('footer.ejs') %>

@@ -1,0 +1,105 @@
+<%- include('header.ejs') %>
+    <main class="mw">
+        <h2>THE BLOG </h2> 
+        <h3>All blog posts</h3>
+        <ul class="lists">
+            <% if(posting.length ==0) { %>
+                <li>등록된 포스팅이 없습니다.</li>
+            <% } else { %>               
+                <% posting.map(post => { %>
+                <li class="card">
+                    <div class="imgArea">
+                        <% if(!post.postImgPath) { %>
+                            <img src="/noimg.png" alt="no_img">
+                        <% } else { %>
+                            <img src="<%= post.postImgPath %>" alt="<%= post.title %>">
+                        <% } %>                      
+                    </div>
+                    <div class="info">
+                        <p class="user"><%= post.userName %></p>
+                        <% 
+                            const postSeverData = new Date(post.createDate)
+                            const postDateStr = postSeverData.toISOString().slice(0,10)    
+                        %>
+                        <p class="createDate"><%= postDateStr %></p>
+                        <h4 class="title"><%= post.title %></h4>
+                        <p class="desc"><%= post.desc %></p>
+                    </div>                   
+                    <a class="more" href="/detail/<%= post.num %>">자세히보기</a>
+                </li>  
+                <% }).join('') %>
+            <% } %>            
+        </ul>
+        <div class="pagenation">
+            
+        </div>
+        <% if(userCk) { %>
+        <div class="btnWrap">
+            <a href="/write" class="btn btnPrimary lg ab_center ">글작성</a>
+        </div>
+        <% } %>         
+    </main>
+
+    <script>
+        let ingEve = true;
+        const totalPost = `<%= totalPost %>`;
+        const updateList = (data) => {
+            const ul = document.querySelector('.lists');
+            data.forEach(post => {
+                const li = document.createElement('li');
+                li.classList.add('card');
+                li.innerHTML = `
+                    <div class="imgArea">
+                        ${post.postImgPath ? `<img src="${post.postImgPath}" alt="${post.title}">` : `<img src="/noimg.png" alt="no_img">`}
+                    </div>
+                    <div class="info">
+                        <p class="user">${post.userName}</p>
+                        <p class="createDate">${new Date(post.createDate).toISOString().slice(0,10)}</p>
+                        <h4 class="title">${post.title}</h4>
+                        <p class="desc">${post.desc}</p>
+                    </div>
+                    <a class="more" href="/detail/${post.num}">자세히보기</a>
+                `;
+                ul.appendChild(li);
+            });
+        }
+
+        const scEve = () => {
+            if (!ingEve) return; 
+            const scTop = window.scrollY;
+            const winH = window.innerHeight;
+            const docH = document.documentElement.scrollHeight;
+            console.log(scTop, docH - winH);
+            if (scTop >= (docH - winH )) {
+                fetchData();
+            }
+        }
+
+        const fetchData = async () => {
+            try {
+                const listCount = document.querySelectorAll('.card').length;
+                const res = await fetch('/getpost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ listCount }) 
+                });
+                if (res.ok) {
+                    const resData = await res.json();
+                    if (resData.length === 0 || listCount >= totalPost) {
+                        ingEve = false; 
+                        return;
+                    }
+                    alert('증가');
+                    updateList(resData);
+                } else {
+                    alert('증가 실패');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        window.addEventListener('scroll', scEve);
+    </script>
+<%- include('footer.ejs') %>

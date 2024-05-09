@@ -1,0 +1,158 @@
+<%- include('header.ejs') %>
+    <main class="mw detail">
+        <h2>THE BLOG </h2> 
+        <div class="viewTile">
+            <h3><%= posting.title %> <button class="lickBtn"><i class="fa-regular fa-thumbs-up"></i></button></h3>
+            <p><a href="/personal/<%= posting.userId %>"><%= posting.userName %></a> I 
+            <% 
+                const postSeverData = new Date(posting.createDate)
+                const postDateStr = postSeverData.toISOString().slice(0,10)    
+            %>    
+            <%= postDateStr %> I 좋아요 : <%= like.likeTotal  %>  </p>
+            <% if(like.likeMember && Array.isArray(like.likeMember)) { %>
+                <p style="width:100%; padding: 2rem 0 1rem 0;">
+                좋아요 :                
+                    <% like.likeMember.map(mem => { %>
+                        <a href="/personal/<%= mem %>"><%= mem %></a>
+                    <% }).join('') %>      
+                </p>
+            <% } %>         
+        </div>            
+        <div class="viewCon">       
+            <% if(!posting.postImgPath) { %>
+                <img src="/noimg.png" alt="no_img">
+            <% } else { %>
+                <img src="<%= posting.postImgPath %>" alt="<%= posting.title %>">
+            <% } %>               
+            <pre><%= posting.desc %></pre> 
+        </div>
+
+        <h3 class="comtit">댓글 작성</h3>
+        <% if(userCk) { %>            
+            <form id="commnetForm" class="comment write">
+                <textarea name="commentText" id="commentText" placeholder="댓글을 입력해주세요."></textarea>
+                <button type="submit" class="btn sm btnSecondary">댓글작성</button>
+            </form>
+        <% } else { %>
+            <div class="comment noneLogin">               
+                <p>작성을 하시려면 <a href="/login">로그인</a>을 해주세요.</p>            
+            </div>
+        <% } %>       
+        <% if(comments) { %>   
+            <ul class="commentList"> 
+                <% comments.map(com => { %>                    
+                    <li class="comment view">
+                        <pre><%= com.comment %></pre>
+                        <div class="comBtnWrap">
+                            
+                            <button class="comEditBtn">수정</button>
+                            <button class="comDelBtn">삭제</button>
+                        </div>
+                        <p><a href="/personal/<%= com.userId %>"><%= com.userName %></a> / <% 
+                                const serverData = new Date(com.createAtDate)
+                                const dateStr = serverData.toISOString().slice(0,10)    
+                            %>
+                            <%= dateStr %>
+                        </p>           
+                    </li>
+                <% }) %>  
+            </ul>   
+        <% } %>
+        
+
+        <div class="btnWrap">        
+            <% if (userCk && (userCk.userId == posting.userId || userCk.userClass == 's')) { %>  
+                <div>               
+                    <button type="submit" class="btnDel btn sm btnDes">삭제</button> 
+                </div>          
+                <a href="/edit/<%= posting.num %>" class="btn sm btnSecondary">수정</a>                
+            <% } %>  
+            <a href="/" class="ab_center btn lg btnPrimary">목록으로</a>
+        </div>
+    </main>
+    <script>
+        const btnDel = document.querySelector('.btnDel');
+        const lickBtn = document.querySelector('.lickBtn');
+        const userId = `<%= userCk ? userCk.userId : '' %>`;
+        const like = `<%= like %>`;
+        const likeMember = `<%= like.likeMember %>`;
+        const likeMemberArray = likeMember.split(',');
+        const commnetForm = document.querySelector('#commnetForm');
+        const commentText = document.querySelector('#commentText');
+        
+        commnetForm.addEventListener('submit', async (e)=>{
+            e.preventDefault();
+            const comment = commentText.value.trim();
+            if (!comment) {
+                alert('댓글을 작성해주세요');
+                return;
+            }
+            await fetch('/commonet/<%= posting.num %>', {
+                method : 'POST',
+                headers : {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({comment})
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    alert('댓글작성이 완료되었습니다.');
+                    location.reload();
+                } else {
+                    alert('댓글작성 실패');
+                }
+            });
+        });
+        
+        const likeOn = () => {
+            likeMemberArray.forEach(mem => {
+                if (mem.trim() === userId && userId !== '' ) { 
+                    document.querySelector('.lickBtn').classList.add('on');
+                }
+            });
+        };
+        likeOn();
+
+        if (btnDel){
+            btnDel.addEventListener('click', async (e)=>{
+                e.preventDefault()
+                if(confirm("정말 삭제하시겟습니까?")) {         
+                    const postId = `<%= posting.num %>`;
+                    await fetch(`/delete/${postId}`, {
+                        method : 'POST',
+                        headers : {
+                            'Content-Type': 'application/json' 
+                        },
+                        body : JSON.stringify({_method: 'DELETE'})
+                    }).then(res => {
+                        if(res.ok) {
+                            alert('삭제되었습니다.');
+                            location.href = '/';
+                        }
+                    });
+                } 
+            });
+        }       
+        if (lickBtn){            
+            lickBtn.addEventListener('click', async (e)=>{                   
+                if(!userId) {
+                    alert('로그인 후 가능합니다.');
+                } else {
+                    await fetch (`/like/<%= posting.num %>`, {
+                        method : 'POST',
+                        headers : {
+                            'Content-Type': 'application/json' 
+                        }
+                    }).then(res => {
+                        if(res.ok) {
+                            location.reload();
+                        } else {
+                            alert('좋아요 실패');                            
+                        }
+                    });
+                }
+            });
+        }
+        
+
+    </script>
+<%- include('footer.ejs') %>
