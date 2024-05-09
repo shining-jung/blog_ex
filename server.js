@@ -65,6 +65,7 @@ app.use( async(req, res, next) => {
     next();
 });
 
+const fs = require('fs');
 if(!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, {recursive : ture});
 
 app.get('/', async (req, res) => {   
