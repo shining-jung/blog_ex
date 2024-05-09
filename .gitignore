@@ -1,6 +1,11 @@
+# 프로젝트 디렉토리 
 node_modules/
 public/uploads
 back/
 img/
+dist/
+build/
+venv/
 
+# 개인파일 
 .env

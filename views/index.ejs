@@ -63,15 +63,21 @@
                 ul.appendChild(li);
             });
         }
+        
+        let lastTime = 0;
+        let thortTime = 200;
 
         const scEve = () => {
             if (!ingEve) return; 
+            const now = Date.now();
+            if (now - lastTime < thortTime) return;
             const scTop = window.scrollY;
             const winH = window.innerHeight;
             const docH = document.documentElement.scrollHeight;
             console.log(scTop, docH - winH);
-            if (scTop >= (docH - winH )) {
+            if (scTop >= (docH - winH - 10 )) {
                 fetchData();
+                lastTime = now;
             }
         }
 
@@ -91,7 +97,6 @@
                         ingEve = false; 
                         return;
                     }
-                    alert('증가');
                     updateList(resData);
                 } else {
                     alert('증가 실패');
