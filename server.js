@@ -65,8 +65,8 @@ app.use( async(req, res, next) => {
     next();
 });
 
-const fs = require('fs');
-if(!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, {recursive : ture});
+const fileSystem = require('fs');
+if(!fileSystem.existsSync(uploadDir)) fileSystem.mkdirSync(uploadDir, {recursive : true});
 
 app.get('/', async (req, res) => {   
     try {
